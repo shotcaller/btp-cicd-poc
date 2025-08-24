@@ -90,42 +90,55 @@ jobs:
               run: |
                 cf apps
                 echo "Copy the route above to test your app."
+
+            - name: Notify Teams on Job Status
+              if: always()
+              uses: jdcargile/ms-teams-notification@v1.4
+              with:
+                ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK_URL }}
+                notification-summary: "GitHub Actions Workflow Status"
+                notification-color: ${{ job.status == 'success' && '008000' || 'FF0000' }} # Green for success, Red for failure
+                github-token: ${{ github.token }}
+                notification-message: |
+                  Workflow: ${{ github.workflow }}
+                  Status: ${{ job.status }}
+                  Repository: ${{ github.repository }}
             
-            - name: Notify MS Teams
-              run: |
-                APP_URL=$(cf app cap-sample | grep routes | awk '{print $2}')
-                WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-                cat <<EOF > payload.json
-                {
-                  "type": "message",
-                  "attachments": [
-                    {
-                      "contentType": "application/vnd.microsoft.card.adaptive",
-                      "content": {
-                        "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-                        "type": "AdaptiveCard",
-                        "version": "1.4",
-                        "body": [
-                          {
-                            "type": "TextBlock",
-                            "size": "Large",
-                            "weight": "Bolder",
-                            "text": "Deployment successful!"
-                          },
-                          {
-                            "type": "TextBlock",
-                            "text": "App URL: $APP_URL",
-                            "wrap": true
-                          },
-                          {
-                            "type": "TextBlock",
-                            "text": "Workflow: $WORKFLOW_URL",
-                            "wrap": true
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-                EOF
-                curl -H 'Content-Type: application/json' -H 'User-Agent: PostmanRuntime/7.45.0' -d @payload.json ${{ secrets.TEAMS_WEBHOOK_URL }}
+            # - name: Notify MS Teams
+            #   run: |
+            #     APP_URL=$(cf app cap-sample | grep routes | awk '{print $2}')
+            #     WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            #     cat <<EOF > payload.json
+            #     {
+            #       "type": "message",
+            #       "attachments": [
+            #         {
+            #           "contentType": "application/vnd.microsoft.card.adaptive",
+            #           "content": {
+            #             "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+            #             "type": "AdaptiveCard",
+            #             "version": "1.4",
+            #             "body": [
+            #               {
+            #                 "type": "TextBlock",
+            #                 "size": "Large",
+            #                 "weight": "Bolder",
+            #                 "text": "Deployment successful!"
+            #               },
+            #               {
+            #                 "type": "TextBlock",
+            #                 "text": "App URL: $APP_URL",
+            #                 "wrap": true
+            #               },
+            #               {
+            #                 "type": "TextBlock",
+            #                 "text": "Workflow: $WORKFLOW_URL",
+            #                 "wrap": true
+            #               }
+            #             ]
+            #           }
+            #         }
+            #       ]
+            #     }
+            #     EOF
+            #     curl -H 'Content-Type: application/json' -H 'User-Agent: PostmanRuntime/7.45.0' -d @payload.json ${{ secrets.TEAMS_WEBHOOK_URL }}
