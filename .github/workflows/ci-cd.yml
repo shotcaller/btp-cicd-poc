@@ -128,5 +128,4 @@ jobs:
                   ]
                 }
                 EOF
-                curl -H 'Content-Type: application/json' -d @payload.json ${{ secrets.TEAMS_WEBHOOK_URL }}
-              
+                curl -H 'Content-Type: application/json' -H 'User-Agent: PostmanRuntime/7.45.0' -d @payload.json ${{ secrets.TEAMS_WEBHOOK_URL }}
