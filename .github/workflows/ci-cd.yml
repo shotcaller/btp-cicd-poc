@@ -97,35 +97,36 @@ jobs:
               with:
                 url: ${{ secrets.TEAMS_WEBHOOK_URL }}
                 method: 'POST'
-                data: {
-                  'type': 'message',
-                  'attachments': [
-                    {
-                      'contentType': 'application/vnd.microsoft.card.adaptive',
-                      'content': {
-                        '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
-                        'type': 'AdaptiveCard',
-                        'version': '1.4',
-                        'body': [
-                          {
-                            'type': 'TextBlock',
-                            'size': 'Large',
-                            'weight': 'Bolder',
-                            'text': 'Deployment status - ${{job.status}}!'
-                          },
-                          {
-                            'type': 'TextBlock',
-                            'text': 'App URL: https://cap-sample-tired-antelope-wd.cfapps.us10-001.hana.ondemand.com/',
-                            'wrap': true
-                          },
-                          {
-                            'type': 'TextBlock',
-                            'text': 'Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
-                            'wrap': true
-                          }
-                        ]
+                data: |
+                  {
+                    "type": "message",
+                    "attachments": [
+                      {
+                        "contentType": "application/vnd.microsoft.card.adaptive",
+                        "content": {
+                          "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+                          "type": "AdaptiveCard",
+                          "version": "1.4",
+                          "body": [
+                            {
+                              "type": "TextBlock",
+                              "size": "Large",
+                              "weight": "Bolder",
+                              "text": "Deployment status - ${{job.status}}!"
+                            },
+                            {
+                              "type": "TextBlock",
+                              "text": "App URL: [Open App](https://cap-sample-tired-antelope-wd.cfapps.us10-001.hana.ondemand.com/)",
+                              "wrap": true
+                            },
+                            {
+                              "type": "TextBlock",
+                              "text": "Workflow: [Open Workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})",
+                              "wrap": true
+                            }
+                          ]
+                        }
                       }
-                    }
-                  ]
-                }
+                    ]
+                  }
            
