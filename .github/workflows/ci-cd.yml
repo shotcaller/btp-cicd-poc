@@ -93,17 +93,11 @@ jobs:
 
             - name: Notify Teams on Job Status
               if: always()
-              uses: jdcargile/ms-teams-notification@v1.4
+              uses: thechetantalwar/teams-notify@v2
               with:
-                ms-teams-webhook-uri: ${{ secrets.TEAMS_WEBHOOK_URL }}
-                notification-summary: "GitHub Actions Workflow Status"
-                notification-color: ${{ job.status == 'success' && '008000' || 'FF0000' }} # Green for success, Red for failure
-                github-token: ${{ github.token }}
-                notification-message: |
-                  Workflow: ${{ github.workflow }}
-                  Status: ${{ job.status }}
-                  Repository: ${{ github.repository }}
-            
+                teams-webhook-url: ${{ secrets.TEAMS_WEBHOOK_URL }}
+                message: Deployment successful!
+
             # - name: Notify MS Teams
             #   run: |
             #     APP_URL=$(cf app cap-sample | grep routes | awk '{print $2}')
