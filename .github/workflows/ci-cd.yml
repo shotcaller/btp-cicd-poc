@@ -1,0 +1,92 @@
+name: CI
+
+on:
+    push:
+        branches: [ "main" ]
+    pull_request:
+        branches: [ "main" ]
+
+env:
+    CF_API_TOKEN: ${{ secrets.CF_API }}
+    CF_ORG: ${{ secrets.CF_ORG }}
+    CF_SPACE: ${{ secrets.CF_SPACE }}
+    CF_USER: ${{ secrets.CF_USER }}
+    CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+
+
+jobs:
+    ci:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Setup Node
+              uses: actions/setup-node@v4
+              with:
+                node-version: '22'
+                cache: 'npm'
+                cache-dependency-path: 'app/package-lock.json'
+
+            - name: Install Dependencies
+              working-directory: app
+              run: npm ci
+
+            - name: Lint & Unit Test (if present)
+              working-directory: app
+              run: |
+                npm run lint --if-present
+                npm test --if-present
+
+            - name: Build (if CAP or build script present)
+              working-directory: app
+              run: npm run build --if-present
+
+            - name: Package Artifact
+              run: |
+               zip -r artifact.zip app manifest.yml || true
+
+            - name: Upload Artifact
+              uses: actions/upload-artifact@v4
+              with:
+                name: cap-sample-artifact
+                path: artifact.zip
+    
+    cd:
+        runs-on: ubuntu-latest
+        needs: ci
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v4
+
+            - name: Try downloading CI artifact
+              id: download
+              continue-on-error: true
+              uses: actions/download-artifact@v4
+              with:
+                name: cap-sample-artifact
+                path: .
+
+            - name: Unzip artifact if downloaded
+              if: steps.download.outcome == 'success'
+              run: unzip -o artifact.zip
+
+            - name: Install Cloud Foundry CLI
+              run: |
+                curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=v8" -o cf.tgz
+                tar -xzf cf.tgz
+                sudo mv cf /usr/local/bin/cf
+                cf version
+
+            - name: CF Login (target org/space)
+              run: |
+                cf login -a ${{ secrets.CF_API }} -u ${{ secrets.CF_USER }} -p ${{ secrets.CF_PASSWORD }} -o ${{ secrets.CF_ORG }} -s ${{ secrets.CF_SPACE }}
+
+            - name: Deploy to Cloud Foundry
+              run: cf push -f manifest.yml
+
+            - name: Show app and routes
+              run: |
+                cf apps
+                echo "Copy the route above to test your app."
