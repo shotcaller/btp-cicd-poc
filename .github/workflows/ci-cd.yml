@@ -12,6 +12,7 @@ env:
     CF_SPACE: ${{ secrets.CF_SPACE }}
     CF_USER: ${{ secrets.CF_USER }}
     CF_PASSWORD: ${{ secrets.CF_PASSWORD }}
+    APP_NAME: cap-sample
 
 
 jobs:
@@ -87,9 +88,11 @@ jobs:
               run: cf push -f manifest.yml
 
             - name: Show app and routes
+              id: show_app_routes
               run: |
                 cf apps
-                echo "Copy the route above to test your app."
+                APP_URL=$(cf app ${{ env.APP_NAME }} | grep 'routes:' | awk '{print $2}')
+                echo "app_url=$APP_URL" >> $GITHUB_OUTPUT
 
             - name: Notify Teams on Job Status
               if: always()
@@ -112,11 +115,15 @@ jobs:
                               "type": "TextBlock",
                               "size": "Large",
                               "weight": "Bolder",
+                              "text": "SAP Cloud Foundry Deployment for ${{ env.APP_NAME }}"
+                            },
+                            {
+                              "type": "TextBlock",
                               "text": "Deployment status - ${{job.status}}!"
                             },
                             {
                               "type": "TextBlock",
-                              "text": "App URL: [Open App](https://cap-sample-tired-antelope-wd.cfapps.us10-001.hana.ondemand.com/)",
+                              "text": "App URL: [Open App](https://${{ steps.show_app_routes.outputs.app_url }})",
                               "wrap": true
                             },
                             {
