@@ -93,11 +93,15 @@ jobs:
 
             - name: Notify Teams on Job Status
               if: always()
-              uses: thechetantalwar/teams-notify@v2
+              uses: dchourasia/ms-teams-notification@1.0
               with:
-                teams_webhook_url: ${{ secrets.TEAMS_WEBHOOK_URL }}
-                message: Deployment successful!
-
+                github-token: ${{ github.token }}
+                webhook-uri: ${{ secrets.TEAMS_WEBHOOK_URL }}
+                custom-facts: |
+                  - name: SAP BTP Repo
+                    value: ${{ github.repository }}
+                  - name: Deployment Status
+                    value: ${{ job.status }}
             # - name: Notify MS Teams
             #   run: |
             #     APP_URL=$(cf app cap-sample | grep routes | awk '{print $2}')
