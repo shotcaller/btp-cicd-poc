@@ -90,3 +90,11 @@ jobs:
               run: |
                 cf apps
                 echo "Copy the route above to test your app."
+            
+            - name: Notify MS Teams
+              run: |
+                APP_URL=$(cf app cap-sample | grep routes | awk '{print $2}')
+                WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                MESSAGE="Deployment successful! App URL: $APP_URL, Workflow: $WORKFLOW_URL"
+                curl -H 'Content-Type: application/json' -d "{\"text\": \"$MESSAGE\"}" ${{ secrets.TEAMS_WEBHOOK_URL }}
+              
