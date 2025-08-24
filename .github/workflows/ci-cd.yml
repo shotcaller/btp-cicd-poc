@@ -97,42 +97,35 @@ jobs:
               with:
                 url: ${{ secrets.TEAMS_WEBHOOK_URL }}
                 method: 'POST'
-                data: '{"text": "Deployment status: ${{ job.status }}"}'
-            # - name: Notify MS Teams
-            #   run: |
-            #     APP_URL=$(cf app cap-sample | grep routes | awk '{print $2}')
-            #     WORKFLOW_URL="https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}"
-            #     cat <<EOF > payload.json
-            #     {
-            #       "type": "message",
-            #       "attachments": [
-            #         {
-            #           "contentType": "application/vnd.microsoft.card.adaptive",
-            #           "content": {
-            #             "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-            #             "type": "AdaptiveCard",
-            #             "version": "1.4",
-            #             "body": [
-            #               {
-            #                 "type": "TextBlock",
-            #                 "size": "Large",
-            #                 "weight": "Bolder",
-            #                 "text": "Deployment successful!"
-            #               },
-            #               {
-            #                 "type": "TextBlock",
-            #                 "text": "App URL: $APP_URL",
-            #                 "wrap": true
-            #               },
-            #               {
-            #                 "type": "TextBlock",
-            #                 "text": "Workflow: $WORKFLOW_URL",
-            #                 "wrap": true
-            #               }
-            #             ]
-            #           }
-            #         }
-            #       ]
-            #     }
-            #     EOF
-            #     curl -H 'Content-Type: application/json' -H 'User-Agent: PostmanRuntime/7.45.0' -d @payload.json ${{ secrets.TEAMS_WEBHOOK_URL }}
+                data: {
+                  'type': 'message',
+                  'attachments': [
+                    {
+                      'contentType': 'application/vnd.microsoft.card.adaptive',
+                      'content': {
+                        '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
+                        'type': 'AdaptiveCard',
+                        'version': '1.4',
+                        'body': [
+                          {
+                            'type': 'TextBlock',
+                            'size': 'Large',
+                            'weight': 'Bolder',
+                            'text': 'Deployment status - ${{job.status}}!'
+                          },
+                          {
+                            'type': 'TextBlock',
+                            'text': 'App URL: https://cap-sample-tired-antelope-wd.cfapps.us10-001.hana.ondemand.com/',
+                            'wrap': true
+                          },
+                          {
+                            'type': 'TextBlock',
+                            'text': 'Workflow: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}',
+                            'wrap': true
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+           
