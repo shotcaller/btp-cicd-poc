@@ -73,16 +73,11 @@ jobs:
               run: unzip -o artifact.zip
 
             - name: Install Cloud Foundry CLI
-              uses: cloudfoundry/cf-cli-action@v2
-              with:
-                cf-version: v8
-
-            # - name: Install Cloud Foundry CLI
-            #   run: |
-            #     curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=v8" -o cf.tgz
-            #     tar -xzf cf.tgz
-            #     sudo mv cf /usr/local/bin/cf
-            #     cf version
+              run: |
+                curl -L "https://packages.cloudfoundry.org/stable?release=linux64-binary&version=v8" -o cf.tgz
+                tar -xzf cf.tgz
+                sudo mv cf8 /usr/local/bin/cf
+                cf version
 
             - name: CF Login (target org/space)
               run: |
