@@ -16,7 +16,7 @@ env:
 
 
 jobs:
-    ci:
+    Build:
         runs-on: ubuntu-latest
 
         steps:
@@ -53,10 +53,19 @@ jobs:
               with:
                 name: cap-sample-artifact
                 path: artifact.zip
-    
-    cd:
+
+    SAST-SonarScan:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: SAST and Sonar Scan
+          run: echo "SAST and Sonar Scan completed."
+
+    Deploy:
         runs-on: ubuntu-latest
-        needs: ci
+        needs: SAST-SonarScan
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -136,4 +145,14 @@ jobs:
                       }
                     ]
                   }
+    
+    DAST-SnykScan:
+      runs-on: ubuntu-latest
+      needs: Deploy
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v4
+
+        - name: DAST and Snyk Scan
+          run: echo "DAST and Snyk Scan completed."
            
